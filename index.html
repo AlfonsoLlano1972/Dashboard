@@ -55,6 +55,7 @@
   }
   footer{color:var(--muted);text-align:center;padding:30px 12px}
   .icon{width:18px;height:18px;display:inline-block;vertical-align:-3px}
+  audio{ width:100%; margin-top:10px; border-radius:10px; background:var(--card); }
 </style>
 </head>
 <body>
@@ -86,38 +87,44 @@
   </footer>
 
 <script>
-/* === 1) LISTA DE INFORMES ====================================================
-   Añade/edita informes aquí. Solo cambia título, archivo, fecha y etiquetas.
-   El campo "file" DEBE coincidir exactamente con el nombre subido al repo.   */
+/* === 1) LISTA DE RECURSOS ====================================================
+   Añade/edita aquí. "type" distingue informe vs audio.                      */
 const reports = [
+  {
+    title: "Audio Resumen — Junio 2025",
+    file:  "podcast_trivium_final.wav",   // 👈 tu archivo de audio
+    date:  "2025-06-19",
+    tags:  ["audio","dfa","junio","2025"],
+    type:  "audio"
+  },
   {
     title: "Ratios DFA — Junio 2025",
     file:  "Benchmarking_DFA_Jun_2025.html",
     date:  "2025-06-30",
-    tags:  ["Ratios","dfa","junio","2025"]
-  },
-  
-  { 
-  title: "DFA Balance Financiero – Junio 2025",
-  file: "DFA_Balance_Financiero_Jun_2025.html",
-  date: "2025-06-20",
-  tags: ["Balance","dfa","junio","2025"] 
+    tags:  ["Ratios","dfa","junio","2025"],
+    type:  "report"
   },
   { 
-  title: "DFA Gastos Consolidados - Junio 2025",
-  file: "DFA_Gastos_Consolidados_junio_2025.html",
-  date: "2025-06-20",
-  tags: ["Gastos","dfa","junio","2025"] 
+    title: "DFA Balance Financiero – Junio 2025",
+    file:  "DFA_Balance_Financiero_Jun_2025.html",
+    date:  "2025-06-20",
+    tags:  ["Balance","dfa","junio","2025"],
+    type:  "report"
   },
   { 
-  title: "DFA Comparativo - Junio 2025",
-  file: "DFA_Comparativo_Departamentos_Jun_2025.html",
-  date: "2025-06-20",
-  tags: ["Comparativo","dfa","junio","2025"] 
+    title: "DFA Gastos Consolidados - Junio 2025",
+    file:  "DFA_Gastos_Consolidados_junio_2025.html",
+    date:  "2025-06-20",
+    tags:  ["Gastos","dfa","junio","2025"],
+    type:  "report"
   },
-
-
-    // { title:"Informe especial — Márgenes Q2", file:"Margenes_Q2_2025.html", date:"2025-08-15", tags:["márgenes","Q2","2025"] },
+  { 
+    title: "DFA Comparativo - Junio 2025",
+    file:  "DFA_Comparativo_Departamentos_Jun_2025.html",
+    date:  "2025-06-20",
+    tags:  ["Comparativo","dfa","junio","2025"],
+    type:  "report"
+  },
 ];
 
 /* === 2) UTILIDADES =========================================================== */
@@ -164,6 +171,7 @@ function render(){
 
   grid.innerHTML = '';
   filtered.forEach(r => {
+    const isAudio = r.type === "audio";
     const card = document.createElement('article');
     card.className = 'card';
     card.innerHTML = `
@@ -172,13 +180,19 @@ function render(){
         ${r.tags.slice(0,3).map(t=>`<span class="badge">${t}</span>`).join('')}
       </div>
       <h3>${r.title}</h3>
-      <div class="meta">Publicado: ${fmtDate(r.date)} · Archivo: ${r.file}</div>
-      <div class="actions">
-        <a class="btn" href="${r.file}" target="_blank" rel="noopener">
-          ${iconSvg()} Abrir informe
-        </a>
-        <a class="btn sec" href="${r.file}" download>⬇️ Descargar</a>
-      </div>`;
+      <div class="meta">Publicado: ${fmtDate(r.date)} · ${isAudio ? 'Audio' : 'Archivo'}: ${r.file}</div>
+      ${isAudio 
+        ? `<audio controls preload="none">
+             <source src="${r.file}" type="audio/wav" />
+             Tu navegador no soporta audio HTML5.
+           </audio>`
+        : `<div class="actions">
+             <a class="btn" href="${r.file}" target="_blank" rel="noopener">
+               ${iconSvg()} Abrir informe
+             </a>
+             <a class="btn sec" href="${r.file}" download>⬇️ Descargar</a>
+           </div>`}
+    `;
     grid.appendChild(card);
   });
 

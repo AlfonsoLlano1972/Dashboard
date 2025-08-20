@@ -1,0 +1,1682 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análisis Completo Benchmarking - TRIVIUM  - Junio 2025</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .main-container {
+            max-width: 1900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-align: center;
+            border-bottom: 4px solid #667eea;
+            padding-bottom: 15px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 1.2em;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #34495e;
+            font-size: 1.8em;
+            margin: 40px 0 25px;
+            padding: 15px;
+            background: linear-gradient(to right, #f0f4f8, transparent);
+            border-left: 5px solid #667eea;
+            border-radius: 5px;
+        }
+        h3 {
+            color: #2c3e50;
+            font-size: 1.3em;
+            margin: 25px 0 15px;
+            text-align: center;
+        }
+        
+        /* Gauge Styles */
+        .gauge-container {
+            position: relative;
+            width: 200px;
+            height: 120px;
+            margin: 0 auto;
+        }
+        
+        .gauge {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .gauge-value {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.6em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .gauge-label {
+            text-align: center;
+            margin-top: 10px;
+            font-weight: 600;
+            color: #34495e;
+            font-size: 0.85em;
+        }
+        
+        .gauge-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            border: 2px solid #e0e0e0;
+            transition: transform 0.3s ease;
+            height: 100%;
+        }
+        
+        .gauge-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        
+        .gauge-details {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 0.85em;
+            color: #7f8c8d;
+        }
+        
+        /* KPI Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        /* Tables */
+        .table-custom {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            background: white;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .table-custom thead {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        
+        .table-custom th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.9em;
+            white-space: nowrap;
+        }
+        
+        .table-custom td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ecf0f1;
+            font-size: 0.9em;
+        }
+        
+        .table-custom tbody tr:hover {
+            background: #f8f9fa;
+        }
+        
+        /* Badges */
+        .badge-custom {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .badge-success { background: #d4edda; color: #155724; }
+        .badge-warning { background: #fff3cd; color: #856404; }
+        .badge-danger { background: #f8d7da; color: #721c24; }
+        .badge-info { background: #d1ecf1; color: #0c5460; }
+        
+        /* Utilities */
+        .positive { color: #27ae60; font-weight: 600; }
+        .negative { color: #e74c3c; font-weight: 600; }
+        .neutral { color: #f39c12; font-weight: 600; }
+        
+        /* Tab Navigation */
+        .nav-tabs-custom {
+            border-bottom: 2px solid #667eea;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .nav-tabs-custom .nav-link {
+            color: #7f8c8d;
+            border: none;
+            padding: 12px 20px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.95em;
+        }
+        
+        .nav-tabs-custom .nav-link:hover {
+            color: #667eea;
+            background: #f8f9fa;
+        }
+        
+        .nav-tabs-custom .nav-link.active {
+            color: #667eea;
+            background: white;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        /* Alert Boxes */
+        .alert-custom {
+            padding: 20px;
+            border-radius: 10px;
+            margin: 25px 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+        }
+        
+        .alert-info {
+            background: #d1ecf1;
+            border-left: 5px solid #3498db;
+        }
+        
+        .alert-icon {
+            font-size: 1.5em;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <h1>📊 ANÁLISIS COMPLETO BENCHMARKING - TODOS LOS RATIOS</h1>
+        <p class="subtitle">TRIVIUM Agronomía y Maquinaria S.L. | Análisis Exhaustivo por Familias de Ratios - Junio 2025</p>
+
+        <!-- Navigation Tabs -->
+        <ul class="nav nav-tabs nav-tabs-custom" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="cdm-tab" data-bs-toggle="tab" data-bs-target="#cdm" type="button">
+                    CdM (11 KPIs)
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="rentabilidad-tab" data-bs-toggle="tab" data-bs-target="#rentabilidad" type="button">
+                    Rentabilidad (12 KPIs)
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="estrategia-tab" data-bs-toggle="tab" data-bs-target="#estrategia" type="button">
+                    Estrategia (4 KPIs)
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="liquidez-tab" data-bs-toggle="tab" data-bs-target="#liquidez" type="button">
+                    Liquidez (11 KPIs)
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="productos-tab" data-bs-toggle="tab" data-bs-target="#productos" type="button">
+                    Dpto. Productos (6 KPIs)
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="repuestos-tab" data-bs-toggle="tab" data-bs-target="#repuestos" type="button">
+                    Dpto. Repuestos (6 KPIs)
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="servicio-tab" data-bs-toggle="tab" data-bs-target="#servicio" type="button">
+                    Dpto. Servicio (6 KPIs)
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="soluciones-tab" data-bs-toggle="tab" data-bs-target="#soluciones" type="button">
+                    Soluciones Int. (5 KPIs)
+                </button>
+            </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content" id="myTabContent">
+            
+            <!-- Tab 1: Indicadores Concesionario de Mañana (11 KPIs) -->
+            <div class="tab-pane fade show active" id="cdm" role="tabpanel">
+                <h2>🎯 INDICADORES FINANCIEROS CONCESIONARIO DE MAÑANA (11 KPIs)</h2>
+                
+                <div class="row">
+                    <!-- KPI 1: Ratio Recursos Propios -->
+                    <div class="col-md-3 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="cdm1" class="gauge"></canvas>
+                                <div class="gauge-value">30.71%</div>
+                            </div>
+                            <div class="gauge-label">RATIO RECURSOS PROPIOS</div>
+                            <div class="gauge-details">
+                                Guía: ≥30% | Media: 33.36%<br>
+                                <span class="badge-success">✓ CUMPLE OBJETIVO</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 2: ROA -->
+                    <div class="col-md-3 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="cdm2" class="gauge"></canvas>
+                                <div class="gauge-value">9.99%</div>
+                            </div>
+                            <div class="gauge-label">BENEFICIO OPERATIVO S/ACTIVOS</div>
+                            <div class="gauge-details">
+                                Guía: ≥15% | Media: 7.43%<br>
+                                <span class="badge-danger">⚠️ BAJO OBJETIVO</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 3: ROS -->
+                    <div class="col-md-3 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="cdm3" class="gauge"></canvas>
+                                <div class="gauge-value">5.02%</div>
+                            </div>
+                            <div class="gauge-label">BENEFICIO OPERATIVO S/VENTAS</div>
+                            <div class="gauge-details">
+                                Guía: 5% | Media: 3.92%<br>
+                                <span class="badge-success">✓ CUMPLE OBJETIVO</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 4: Rotación Activos -->
+                    <div class="col-md-3 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="cdm4" class="gauge"></canvas>
+                                <div class="gauge-value">1.99x</div>
+                            </div>
+                            <div class="gauge-label">ROTACIÓN DE ACTIVOS</div>
+                            <div class="gauge-details">
+                                Guía: ≥3x | Media: 1.90x<br>
+                                <span class="badge-danger">⚠️ INSUFICIENTE</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 5: Rotación Productos Usados -->
+                    <div class="col-md-3 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="cdm5" class="gauge"></canvas>
+                                <div class="gauge-value">1.85x</div>
+                            </div>
+                            <div class="gauge-label">ROTACIÓN PRODUCTOS USADOS</div>
+                            <div class="gauge-details">
+                                Guía: >4x | Media: 1.75x<br>
+                                <span class="badge-danger">⚠️ MUY BAJO</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 6: VGU -->
+                    <div class="col-md-3 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="cdm6" class="gauge"></canvas>
+                                <div class="gauge-value">14.11%</div>
+                            </div>
+                            <div class="gauge-label">VGU - VALORACIÓN GESTIÓN USADOS</div>
+                            <div class="gauge-details">
+                                Guía: 20% | Media: 7.87%<br>
+                                <span class="badge-warning">MEJORABLE</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 7: Coeficiente Absorción Total -->
+                    <div class="col-md-3 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="cdm7" class="gauge"></canvas>
+                                <div class="gauge-value">82.24%</div>
+                            </div>
+                            <div class="gauge-label">COEFICIENTE ABSORCIÓN TOTAL</div>
+                            <div class="gauge-details">
+                                Guía: 100% | Media: 91.67%<br>
+                                <span class="badge-warning">BAJO MEDIA</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 8: Total Ventas -->
+                    <div class="col-md-3 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="cdm8" class="gauge"></canvas>
+                                <div class="gauge-value">169.4M€</div>
+                            </div>
+                            <div class="gauge-label">TOTAL VENTAS</div>
+                            <div class="gauge-details">
+                                Media: 113.9M€<br>
+                                <span class="badge-success">✓ LÍDER ABSOLUTO</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 9: Peso JD -->
+                    <div class="col-md-3 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="cdm9" class="gauge"></canvas>
+                                <div class="gauge-value">85.65%</div>
+                            </div>
+                            <div class="gauge-label">PESO VENTAS JOHN DEERE</div>
+                            <div class="gauge-details">
+                                Guía: 50% | Media: 82.21%<br>
+                                <span class="badge-success">✓ EXCELENTE</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 10: Peso Postventa -->
+                    <div class="col-md-3 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="cdm10" class="gauge"></canvas>
+                                <div class="gauge-value">39.54%</div>
+                            </div>
+                            <div class="gauge-label">PESO ESPECÍFICO POSTVENTA</div>
+                            <div class="gauge-details">
+                                Guía: 30% | Media: 35.10%<br>
+                                <span class="badge-success">✓ EXCELENTE</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 11: Gastos s/Ventas -->
+                    <div class="col-md-3 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="cdm11" class="gauge"></canvas>
+                                <div class="gauge-value">10.71%</div>
+                            </div>
+                            <div class="gauge-label">GASTOS TOTALES S/VENTAS</div>
+                            <div class="gauge-details">
+                                Guía: ≤10% | Media: 10.85%<br>
+                                <span class="badge-warning">ELEVADO</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Resumen específico CdM -->
+                <div class="alert-custom alert-info mt-5">
+                    <span class="alert-icon">📊</span>
+                    <div>
+                        <strong>RESUMEN INDICADORES CONCESIONARIO DE MAÑANA - 11 KPIs:</strong><br><br>
+                        
+                        <strong>✅ Indicadores que CUMPLEN objetivos (5/11 = 45%):</strong><br>
+                        • Recursos Propios: 30.71% (Guía ≥30%) ✓ CUMPLE<br>
+                        • ROS - Beneficio Operativo s/Ventas: 5.02% (Guía 5%) ✓ CUMPLE<br>
+                        • Total Ventas: 169.4M€ vs 113.9M€ media ✓ LÍDER ABSOLUTO<br>
+                        • Peso Ventas John Deere: 85.65% (Guía 50%) ✓ EXCELENTE<br>
+                        • Peso Postventa: 39.54% (Guía 30%) ✓ EXCELENTE<br><br>
+                        
+                        <strong>⚠️ Indicadores MEJORABLES (3/11 = 27%):</strong><br>
+                        • VGU - Valoración Gestión Usados: 14.11% vs 20% objetivo<br>
+                        • Coeficiente Absorción Total: 82.24% vs 100% objetivo<br>
+                        • Gastos Totales s/Ventas: 10.71% vs ≤10% objetivo<br><br>
+                        
+                        <strong>🔴 Indicadores CRÍTICOS (3/11 = 27%):</strong><br>
+                        • ROA - Beneficio Operativo s/Activos: 9.99% vs 15% objetivo (-5.01pp) 🔴<br>
+                        • Rotación de Activos: 1.99x vs ≥3x objetivo (-1.01x) 🔴<br>
+                        • Rotación Productos Usados: 1.85x vs >4x objetivo (-2.15x) 🔴<br><br>
+                        
+                        <strong>🎯 CONCLUSIÓN CdM:</strong> TRIVIUM es líder absoluto en ventas (169.4M€) con excelente peso JD (85.65%) y postventa (39.54%). Sin embargo, la eficiencia de activos es crítica: ROA solo 9.99% (objetivo 15%) y rotación de activos 1.99x (objetivo 3x). El exceso de capital inmovilizado, especialmente en productos usados (rotación 1.85x vs 4x objetivo), deteriora la rentabilidad sobre activos.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 2: Rentabilidad del Concesionario (12 KPIs) -->
+            <div class="tab-pane fade" id="rentabilidad" role="tabpanel">
+                <h2>💰 RENTABILIDAD DEL CONCESIONARIO (12 KPIs)</h2>
+                
+                <div class="row">
+                    <!-- KPI 1: BAI sobre Inversión -->
+                    <div class="col-md-3 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="rent1" class="gauge"></canvas>
+                                <div class="gauge-value">27.50%</div>
+                            </div>
+                            <div class="gauge-label">BAI SOBRE INVERSIÓN</div>
+                            <div class="gauge-details">
+                                Guía: ≥30% | Media: 16.70%<br>
+                                <span class="badge-warning">CERCA OBJETIVO</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 2: Margen Bruto Total -->
+                    <div class="col-md-3 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="rent2" class="gauge"></canvas>
+                                <div class="gauge-value">13.18%</div>
+                            </div>
+                            <div class="gauge-label">MARGEN BRUTO TOTAL</div>
+                            <div class="gauge-details">
+                                Guía: 15% | Media: 12.53%<br>
+                                <span class="badge-warning">CERCA OBJETIVO</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 3: Margen Bruto Productos -->
+                    <div class="col-md-3 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="rent3" class="gauge"></canvas>
+                                <div class="gauge-value">7.62%</div>
+                            </div>
+                            <div class="gauge-label">MARGEN BRUTO PRODUCTOS</div>
+                            <div class="gauge-details">
+                                Guía: ≥6% | Media: 4.49%<br>
+                                <span class="badge-success">✓ SUPERA OBJETIVO</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 4: Margen Bruto Repuestos -->
+                    <div class="col-md-3 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="rent4" class="gauge"></canvas>
+                                <div class="gauge-value">19.43%</div>
+                            </div>
+                            <div class="gauge-label">MARGEN BRUTO REPUESTOS</div>
+                            <div class="gauge-details">
+                                Guía: ≥30% | Media: 24.47%<br>
+                                <span class="badge-danger">⚠️ MUY BAJO</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 5: Margen Bruto Servicio -->
+                    <div class="col-md-3 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="rent5" class="gauge"></canvas>
+                                <div class="gauge-value">35.87%</div>
+                            </div>
+                            <div class="gauge-label">MARGEN BRUTO SERVICIO</div>
+                            <div class="gauge-details">
+                                Guía: ≥55% | Media: 35.18%<br>
+                                <span class="badge-danger">⚠️ CRÍTICO</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 6: Margen Bruto Usados -->
+                    <div class="col-md-3 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="rent6" class="gauge"></canvas>
+                                <div class="gauge-value">4.09%</div>
+                            </div>
+                            <div class="gauge-label">MARGEN BRUTO USADOS</div>
+                            <div class="gauge-details">
+                                Guía: ≥5% | Media: -1.02%<br>
+                                <span class="badge-warning">BAJO OBJETIVO</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 7: Tesorería -->
+                    <div class="col-md-3 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="rent7" class="gauge"></canvas>
+                                <div class="gauge-value">8.17M€</div>
+                            </div>
+                            <div class="gauge-label">TESORERÍA</div>
+                            <div class="gauge-details">
+                                Media: 4.32M€<br>
+                                <span class="badge-success">✓ SÓLIDA</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 8: Disponible-Cuentas/Flujo -->
+                    <div class="col-md-3 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="rent8" class="gauge"></canvas>
+                                <div class="gauge-value">4.86</div>
+                            </div>
+                            <div class="gauge-label">DISPONIBLE-CUENTAS/FLUJO</div>
+                            <div class="gauge-details">
+                                Guía: <5 | Media: 6.01<br>
+                                <span class="badge-success">✓ BUENO</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 9: Gastos Directos -->
+                    <div class="col-md-3 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="rent9" class="gauge"></canvas>
+                                <div class="gauge-value">6.36%</div>
+                            </div>
+                            <div class="gauge-label">GASTOS DIRECTOS S/VENTAS</div>
+                            <div class="gauge-details">
+                                Guía: ≤5% | Media: 6.93%<br>
+                                <span class="badge-warning">ELEVADO</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 10: Gastos Indirectos -->
+                    <div class="col-md-3 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="rent10" class="gauge"></canvas>
+                                <div class="gauge-value">4.34%</div>
+                            </div>
+                            <div class="gauge-label">GASTOS INDIRECTOS S/VENTAS</div>
+                            <div class="gauge-details">
+                                Guía: ≤5% | Media: 3.92%<br>
+                                <span class="badge-success">✓ EN LÍNEA</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 11: Ventas MO/Coste -->
+                    <div class="col-md-3 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="rent11" class="gauge"></canvas>
+                                <div class="gauge-value">160.31%</div>
+                            </div>
+                            <div class="gauge-label">VENTAS MANO OBRA/COSTE</div>
+                            <div class="gauge-details">
+                                Guía: ≥220% | Media: 158.08%<br>
+                                <span class="badge-danger">⚠️ BAJO</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 12: Ventas por Empleado -->
+                    <div class="col-md-3 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="rent12" class="gauge"></canvas>
+                                <div class="gauge-value">474K€</div>
+                            </div>
+                            <div class="gauge-label">VENTAS POR EMPLEADO</div>
+                            <div class="gauge-details">
+                                Media: 482K€<br>
+                                <span class="badge-info">SIMILAR</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Resumen específico Rentabilidad -->
+                <div class="alert-custom alert-info mt-5">
+                    <span class="alert-icon">📊</span>
+                    <div>
+                        <strong>RESUMEN FAMILIA RENTABILIDAD - 12 INDICADORES:</strong><br><br>
+                        
+                        <strong>✅ Indicadores que CUMPLEN (4/12 = 33%):</strong><br>
+                        • Margen Bruto Productos: 7.62% (Guía ≥6%) ✓ SUPERA OBJETIVO<br>
+                        • Tesorería: 8.17M€ vs 4.32M€ media ✓ SÓLIDA<br>
+                        • Disponible-Cuentas/Flujo: 4.86 (Guía <5) ✓ BUENO<br>
+                        • Gastos Indirectos s/Ventas: 4.34% (Guía ≤5%) ✓ EN LÍNEA<br><br>
+                        
+                        <strong>⚠️ Indicadores MEJORABLES (4/12 = 33%):</strong><br>
+                        • BAI sobre Inversión: 27.50% vs 30% objetivo (-2.5pp) - CERCA OBJETIVO<br>
+                        • Margen Bruto Total: 13.18% vs 15% objetivo (-1.82pp)<br>
+                        • Margen Bruto Usados: 4.09% vs 5% objetivo (-0.91pp)<br>
+                        • Gastos Directos s/Ventas: 6.36% vs 5% objetivo (+1.36pp) - ELEVADO<br><br>
+                        
+                        <strong>🔴 Indicadores CRÍTICOS (4/12 = 33%):</strong><br>
+                        • Margen Bruto Repuestos: 19.43% vs 30% objetivo (GAP: -10.57pp) 🔴 MUY BAJO<br>
+                        • Margen Bruto Servicio: 35.87% vs 55% objetivo (GAP: -19.13pp) 🔴 CRÍTICO<br>
+                        • Ventas MO/Coste: 160.31% vs 220% objetivo (GAP: -59.69pp) 🔴 BAJO<br>
+                        • Ventas por Empleado: 474K€ vs 482K€ media - SIMILAR<br><br>
+                        
+                        <strong>🎯 CONCLUSIÓN RENTABILIDAD:</strong> Los márgenes de postventa están comprometiendo severamente la rentabilidad. El margen de servicio (35.87%) está 19pp por debajo del objetivo, indicando ineficiencia operativa grave. El margen de repuestos (19.43%) sugiere política de precios inadecuada. La productividad del taller (160% MO/Coste) está muy por debajo del 220% objetivo. Acción urgente: revisar estructura de costos servicio y política de precios repuestos.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 3: Estrategia Financiera (4 KPIs) -->
+            <div class="tab-pane fade" id="estrategia" role="tabpanel">
+                <h2>💼 ESTRATEGIA FINANCIERA (4 KPIs)</h2>
+                
+                <div class="row">
+                    <!-- KPI 1: Recursos Propios sobre Ventas -->
+                    <div class="col-md-3 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="est1" class="gauge"></canvas>
+                                <div class="gauge-value">0.17</div>
+                            </div>
+                            <div class="gauge-label">RECURSOS PROPIOS S/VENTAS</div>
+                            <div class="gauge-details">
+                                Guía: 12% | Media: 0.20<br>
+                                <span class="badge-warning">BAJO</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 2: Endeudamiento/Recursos Propios -->
+                    <div class="col-md-3 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="est2" class="gauge"></canvas>
+                                <div class="gauge-value">92%</div>
+                            </div>
+                            <div class="gauge-label">ENDEUDAMIENTO/RECURSOS PROPIOS</div>
+                            <div class="gauge-details">
+                                Guía: <75% | Media: 71%<br>
+                                <span class="badge-danger">⚠️ ALTO</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 3: RAI/(RAI+Gastos Fin) -->
+                    <div class="col-md-3 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="est3" class="gauge"></canvas>
+                                <div class="gauge-value">88%</div>
+                            </div>
+                            <div class="gauge-label">RAI/(RAI + GASTOS FINANCIEROS)</div>
+                            <div class="gauge-details">
+                                Guía: ≥67% | Media: 86%<br>
+                                <span class="badge-success">✓ BUENO</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 4: Ratio Endeudamiento Servicio -->
+                    <div class="col-md-3 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="est4" class="gauge"></canvas>
+                                <div class="gauge-value">8.33x</div>
+                            </div>
+                            <div class="gauge-label">RATIO ENDEUDAMIENTO SERVICIO</div>
+                            <div class="gauge-details">
+                                Guía: >3x | Media: 7.16x<br>
+                                <span class="badge-success">✓ EXCELENTE</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Resumen específico Estrategia Financiera -->
+                <div class="alert-custom alert-info mt-5">
+                    <span class="alert-icon">📊</span>
+                    <div>
+                        <strong>RESUMEN ESTRATEGIA FINANCIERA - 4 INDICADORES:</strong><br><br>
+                        
+                        <strong>✅ Indicadores que CUMPLEN (2/4 = 50%):</strong><br>
+                        • RAI/(RAI+Gastos Financieros): 88% (Guía ≥67%) ✓ BUENO - Buena capacidad de generar beneficios sobre gastos financieros<br>
+                        • Ratio Endeudamiento Servicio: 8.33x (Guía >3x) ✓ EXCELENTE - Sólida capacidad de servicio de deuda<br><br>
+                        
+                        <strong>⚠️ Indicadores MEJORABLES (1/4 = 25%):</strong><br>
+                        • Recursos Propios sobre Ventas: 0.17 vs 0.20 media (Guía 12%) - BAJO - Infracapitalización relativa al volumen<br><br>
+                        
+                        <strong>🔴 Indicadores CRÍTICOS (1/4 = 25%):</strong><br>
+                        • Endeudamiento/Recursos Propios: 92% vs límite 75% (GAP: +17pp) 🔴 ALTO - Exceso de apalancamiento financiero<br><br>
+                        
+                        <strong>🎯 CONCLUSIÓN ESTRATEGIA:</strong> Estructura financiera desequilibrada con excesivo apalancamiento (92% vs 75% límite). Aunque la empresa tiene excelente capacidad de servicio de deuda (8.33x) y genera buenos beneficios sobre gastos financieros (88%), el alto endeudamiento genera vulnerabilidad ante cambios de mercado. <br><br>
+                        
+                        <strong>ACCIONES RECOMENDADAS:</strong><br>
+                        1. Ampliar capital en 3M€ para reducir ratio endeudamiento<br>
+                        2. Convertir 7M€ de deuda CP a LP para mejorar estructura<br>
+                        3. Retener beneficios 2025-2026 sin distribuir dividendos<br>
+                        4. Objetivo: Reducir endeudamiento del 92% al 75% en 12 meses
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 4: Ratios de Liquidez (11 KPIs) -->
+            <div class="tab-pane fade" id="liquidez" role="tabpanel">
+                <h2>💧 RATIOS DE LIQUIDEZ (11 KPIs)</h2>
+                
+                <div class="row">
+                    <!-- KPI 1: Ratio Tesorería -->
+                    <div class="col-md-3 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="liq1" class="gauge"></canvas>
+                                <div class="gauge-value">0.35:1</div>
+                            </div>
+                            <div class="gauge-label">RATIO DE TESORERÍA</div>
+                            <div class="gauge-details">
+                                Guía: 0.4-1.0 | Media: 0.37:1<br>
+                                <span class="badge-warning">BAJO</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 2: Ratio Liquidez -->
+                    <div class="col-md-3 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="liq2" class="gauge"></canvas>
+                                <div class="gauge-value">1.34:1</div>
+                            </div>
+                            <div class="gauge-label">RATIO DE LIQUIDEZ</div>
+                            <div class="gauge-details">
+                                Guía: 1.2-2.0 | Media: 1.45:1<br>
+                                <span class="badge-success">✓ EN RANGO</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 3: Periodo Medio Cobro -->
+                    <div class="col-md-3 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="liq3" class="gauge"></canvas>
+                                <div class="gauge-value">44.17d</div>
+                            </div>
+                            <div class="gauge-label">PERIODO MEDIO DE COBRO</div>
+                            <div class="gauge-details">
+                                Guía: 35 días | Media: 38.49d<br>
+                                <span class="badge-warning">ELEVADO</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 4: Rotación Cuentas Cobrar -->
+                    <div class="col-md-3 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="liq4" class="gauge"></canvas>
+                                <div class="gauge-value">8.26x</div>
+                            </div>
+                            <div class="gauge-label">ROTACIÓN CUENTAS A COBRAR</div>
+                            <div class="gauge-details">
+                                Guía: 10x | Media: 9.48x<br>
+                                <span class="badge-warning">BAJA</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 5: Periodo Medio Pago -->
+                    <div class="col-md-3 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="liq5" class="gauge"></canvas>
+                                <div class="gauge-value">66.87d</div>
+                            </div>
+                            <div class="gauge-label">PERIODO MEDIO DE PAGO</div>
+                            <div class="gauge-details">
+                                Guía: 45-60d | Media: 66.81d<br>
+                                <span class="badge-warning">ALTO</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 6: Fondo de Maniobra -->
+                    <div class="col-md-3 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="liq6" class="gauge"></canvas>
+                                <div class="gauge-value">21.1M€</div>
+                            </div>
+                            <div class="gauge-label">FONDO DE MANIOBRA</div>
+                            <div class="gauge-details">
+                                Media: 18.7M€<br>
+                                <span class="badge-success">✓ POSITIVO</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 7: Rotación Fondo Maniobra -->
+                    <div class="col-md-3 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="liq7" class="gauge"></canvas>
+                                <div class="gauge-value">6.71x</div>
+                            </div>
+                            <div class="gauge-label">ROTACIÓN FONDO DE MANIOBRA</div>
+                            <div class="gauge-details">
+                                Guía: >8x | Media: 5.65x<br>
+                                <span class="badge-warning">MEJORABLE</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 8: Ventas Cubrir Gastos Admin -->
+                    <div class="col-md-3 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="liq8" class="gauge"></canvas>
+                                <div class="gauge-value">30.7M€</div>
+                            </div>
+                            <div class="gauge-label">VENTAS CUBRIR GASTOS ADMIN</div>
+                            <div class="gauge-details">
+                                Media: 19.9M€<br>
+                                <span class="badge-warning">ALTO</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 9: Rotación Inventario -->
+                    <div class="col-md-3 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="liq9" class="gauge"></canvas>
+                                <div class="gauge-value">2.80x</div>
+                            </div>
+                            <div class="gauge-label">ROTACIÓN DE INVENTARIO</div>
+                            <div class="gauge-details">
+                                Guía: 4x | Media: 2.53x<br>
+                                <span class="badge-danger">⚠️ BAJA</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 10: Periodo Permanencia Inventario -->
+                    <div class="col-md-3 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="liq10" class="gauge"></canvas>
+                                <div class="gauge-value">130.44d</div>
+                            </div>
+                            <div class="gauge-label">PERIODO PERMANENCIA INVENTARIO</div>
+                            <div class="gauge-details">
+                                Guía: 90-120d | Media: 144.04d<br>
+                                <span class="badge-warning">ALTO</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 11: Ventas sobre Inventarios -->
+                    <div class="col-md-3 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="liq11" class="gauge"></canvas>
+                                <div class="gauge-value">3.45x</div>
+                            </div>
+                            <div class="gauge-label">VENTAS SOBRE INVENTARIOS</div>
+                            <div class="gauge-details">
+                                Guía: 3.5-5x | Media: 3.14x<br>
+                                <span class="badge-warning">LÍMITE INFERIOR</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Resumen específico Liquidez -->
+                <div class="alert-custom alert-info mt-5">
+                    <span class="alert-icon">📊</span>
+                    <div>
+                        <strong>RESUMEN RATIOS DE LIQUIDEZ - 11 INDICADORES:</strong><br><br>
+                        
+                        <strong>✅ Indicadores que CUMPLEN (2/11 = 18%):</strong><br>
+                        • Ratio Liquidez: 1.34:1 (Guía 1.2-2.0) ✓ EN RANGO - Capacidad adecuada para cubrir pasivo corriente<br>
+                        • Fondo de Maniobra: 21.1M€ vs 18.7M€ media ✓ POSITIVO - Solvencia a corto plazo<br><br>
+                        
+                        <strong>⚠️ Indicadores MEJORABLES (8/11 = 73%):</strong><br>
+                        • Ratio Tesorería: 0.35:1 vs 0.4-1.0 objetivo - BAJO<br>
+                        • Periodo Medio Cobro: 44.17 días vs 35 días objetivo (GAP: +9.17 días) - ELEVADO<br>
+                        • Rotación Cuentas Cobrar: 8.26x vs 10x objetivo - BAJA<br>
+                        • Periodo Medio Pago: 66.87 días vs 45-60 días objetivo (GAP: +6.87 días) - ALTO<br>
+                        • Rotación Fondo Maniobra: 6.71x vs >8x objetivo - MEJORABLE<br>
+                        • Ventas Cubrir Gastos Admin: 30.7M€ vs 19.9M€ media - ALTO<br>
+                        • Periodo Permanencia Inventario: 130.44 días vs 90-120 días objetivo<br>
+                        • Ventas sobre Inventarios: 3.45x vs 3.5-5x objetivo - LÍMITE INFERIOR<br><br>
+                        
+                        <strong>🔴 Indicadores CRÍTICOS (1/11 = 9%):</strong><br>
+                        • Rotación Inventario: 2.80x vs 4x objetivo (GAP: -1.2x) 🔴 BAJA - Capital excesivo atrapado en stock<br><br>
+                        
+                        <strong>🎯 CONCLUSIÓN LIQUIDEZ:</strong> Gestión del capital circulante deficiente. El inventario permanece 130 días (objetivo 90-120), rotando solo 2.8 veces/año (objetivo 4x). El cobro se extiende a 44 días (objetivo 35) mientras el pago alcanza 67 días, tensionando relaciones con proveedores.<br><br>
+                        
+                        <strong>IMPACTO FINANCIERO:</strong><br>
+                        • Capital atrapado en inventario: ~10M€ por exceso de stock<br>
+                        • Capital atrapado en cobros: ~3.3M€ por retraso en cobro<br>
+                        • Total liberación potencial: 13.3M€ optimizando working capital
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 5: Departamento de Productos (6 KPIs) -->
+            <div class="tab-pane fade" id="productos" role="tabpanel">
+                <h2>🚜 DEPARTAMENTO DE PRODUCTOS (6 KPIs)</h2>
+                
+                <div class="row">
+                    <!-- KPI 1: Rotación Productos -->
+                    <div class="col-md-4 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="prod1" class="gauge"></canvas>
+                                <div class="gauge-value">2.65x</div>
+                            </div>
+                            <div class="gauge-label">ROTACIÓN DE PRODUCTOS</div>
+                            <div class="gauge-details">
+                                Guía: >4x | Media: 2.62x<br>
+                                <span class="badge-danger">⚠️ BAJA</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 2: Rotación JD Agrícola -->
+                    <div class="col-md-4 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="prod2" class="gauge"></canvas>
+                                <div class="gauge-value">2.94x</div>
+                            </div>
+                            <div class="gauge-label">ROTACIÓN PRODUCTOS JD AGRÍCOLA</div>
+                            <div class="gauge-details">
+                                Guía: >4x | Media: 3.05x<br>
+                                <span class="badge-warning">MEJORABLE</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 3: Rotación JD Espacios Verdes -->
+                    <div class="col-md-4 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="prod3" class="gauge"></canvas>
+                                <div class="gauge-value">2.36x</div>
+                            </div>
+                            <div class="gauge-label">ROTACIÓN JD ESPACIOS VERDES</div>
+                            <div class="gauge-details">
+                                Guía: >4x | Media: 2.65x<br>
+                                <span class="badge-danger">⚠️ BAJA</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 4: Rotación Productos Varios -->
+                    <div class="col-md-4 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="prod4" class="gauge"></canvas>
+                                <div class="gauge-value">1.24x</div>
+                            </div>
+                            <div class="gauge-label">ROTACIÓN PRODUCTOS VARIOS</div>
+                            <div class="gauge-details">
+                                Guía: >4x | Media: 1.54x<br>
+                                <span class="badge-danger">⚠️ MUY BAJA</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 5: Gastos sobre Ventas -->
+                    <div class="col-md-4 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="prod5" class="gauge"></canvas>
+                                <div class="gauge-value">6.01%</div>
+                            </div>
+                            <div class="gauge-label">GASTOS SOBRE VENTAS - PRODUCTOS</div>
+                            <div class="gauge-details">
+                                Guía: 6% | Media: 6.10%<br>
+                                <span class="badge-success">✓ EN LÍNEA</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 6: Peso Específico -->
+                    <div class="col-md-4 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="prod6" class="gauge"></canvas>
+                                <div class="gauge-value">60.73%</div>
+                            </div>
+                            <div class="gauge-label">PESO ESPECÍFICO VENTA PRODUCTOS</div>
+                            <div class="gauge-details">
+                                Guía: <70% | Media: 64.68%<br>
+                                <span class="badge-success">✓ ÓPTIMO</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Resumen específico Productos -->
+                <div class="alert-custom alert-info mt-5">
+                    <span class="alert-icon">📊</span>
+                    <div>
+                        <strong>RESUMEN DEPARTAMENTO PRODUCTOS - 6 INDICADORES:</strong><br><br>
+                        
+                        <strong>✅ Indicadores que CUMPLEN (2/6 = 33%):</strong><br>
+                        • Gastos sobre Ventas: 6.01% vs 6% objetivo ✓ EN LÍNEA - Estructura de costos controlada<br>
+                        • Peso Específico Venta Productos: 60.73% vs <70% objetivo ✓ ÓPTIMO - Mix equilibrado con postventa<br><br>
+                        
+                        <strong>⚠️ Indicadores MEJORABLES (1/6 = 17%):</strong><br>
+                        • Rotación Productos JD Agrícola: 2.94x vs >4x objetivo (Media sector: 3.05x) - Ligeramente bajo<br><br>
+                        
+                        <strong>🔴 Indicadores CRÍTICOS (3/6 = 50%):</strong><br>
+                        • Rotación de Productos (general): 2.65x vs >4x objetivo (GAP: -1.35x) 🔴 BAJA<br>
+                        • Rotación JD Espacios Verdes: 2.36x vs >4x objetivo (GAP: -1.64x) 🔴 BAJA<br>
+                        • Rotación Productos Varios: 1.24x vs >4x objetivo (GAP: -2.76x) 🔴 MUY BAJA<br><br>
+                        
+                        <strong>🎯 CONCLUSIÓN PRODUCTOS:</strong> Departamento con graves problemas de rotación en todas las categorías. El promedio de rotación (2.3x) está muy por debajo del objetivo (4x), indicando exceso de stock envejecido que deteriora márgenes y consume capital excesivo.<br><br>
+                        
+                        <strong>PLAN DE ACCIÓN INMEDIATO:</strong><br>
+                        1. Liquidación agresiva stock >180 días (objetivo: reducir 10M€)<br>
+                        2. Implementar gestión activa inventario con revisión semanal<br>
+                        3. Mejorar forecasting con equipo ventas (proceso mensual)<br>
+                        4. Establecer límites máximos stock por categoría<br>
+                        5. Objetivo 2026: Alcanzar rotación 4x en todas las categorías
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 6: Departamento de Repuestos (6 KPIs) -->
+            <div class="tab-pane fade" id="repuestos" role="tabpanel">
+                <h2>🔧 DEPARTAMENTO DE REPUESTOS (6 KPIs)</h2>
+                
+                <div class="row">
+                    <!-- KPI 1: Rotación Repuestos -->
+                    <div class="col-md-4 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="rep1" class="gauge"></canvas>
+                                <div class="gauge-value">3.33x</div>
+                            </div>
+                            <div class="gauge-label">ROTACIÓN DE REPUESTOS</div>
+                            <div class="gauge-details">
+                                Guía: >3x | Media: 2.57x<br>
+                                <span class="badge-success">✓ CUMPLE</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 2: Rotación Repuestos JD -->
+                    <div class="col-md-4 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="rep2" class="gauge"></canvas>
+                                <div class="gauge-value">3.29x</div>
+                            </div>
+                            <div class="gauge-label">ROTACIÓN REPUESTOS JOHN DEERE</div>
+                            <div class="gauge-details">
+                                Guía: >3x | Media: 2.54x<br>
+                                <span class="badge-success">✓ CUMPLE</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 3: Rotación Repuestos Varios -->
+                    <div class="col-md-4 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="rep3" class="gauge"></canvas>
+                                <div class="gauge-value">2.69x</div>
+                            </div>
+                            <div class="gauge-label">ROTACIÓN REPUESTOS VARIOS</div>
+                            <div class="gauge-details">
+                                Guía: >3x | Media: 1.80x<br>
+                                <span class="badge-warning">MEJORABLE</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 4: Coeficiente Absorción -->
+                    <div class="col-md-4 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="rep4" class="gauge"></canvas>
+                                <div class="gauge-value">62.52%</div>
+                            </div>
+                            <div class="gauge-label">COEFICIENTE ABSORCIÓN - REPUESTOS</div>
+                            <div class="gauge-details">
+                                Guía: ≥60% | Media: 65.79%<br>
+                                <span class="badge-success">✓ CUMPLE</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 5: Gastos sobre Ventas -->
+                    <div class="col-md-4 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="rep5" class="gauge"></canvas>
+                                <div class="gauge-value">9.05%</div>
+                            </div>
+                            <div class="gauge-label">GASTOS SOBRE VENTAS - REPUESTOS</div>
+                            <div class="gauge-details">
+                                Guía: 14% | Media: 10.70%<br>
+                                <span class="badge-success">✓ EFICIENTE</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 6: Peso Específico -->
+                    <div class="col-md-4 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="rep6" class="gauge"></canvas>
+                                <div class="gauge-value">32.62%</div>
+                            </div>
+                            <div class="gauge-label">PESO ESPECÍFICO VENTA REPUESTOS</div>
+                            <div class="gauge-details">
+                                Guía: 20% | Media: 27.41%<br>
+                                <span class="badge-success">✓ EXCELENTE</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Resumen específico Repuestos -->
+                <div class="alert-custom alert-info mt-5">
+                    <span class="alert-icon">📊</span>
+                    <div>
+                        <strong>RESUMEN DEPARTAMENTO REPUESTOS - 6 INDICADORES:</strong><br><br>
+                        
+                        <strong>✅ Indicadores que CUMPLEN (5/6 = 83%):</strong><br>
+                        • Rotación de Repuestos: 3.33x vs >3x objetivo ✓ CUMPLE - Stock bien gestionado<br>
+                        • Rotación Repuestos John Deere: 3.29x vs >3x objetivo ✓ CUMPLE - Buena gestión JD<br>
+                        • Coeficiente Absorción Repuestos: 62.52% vs ≥60% objetivo ✓ CUMPLE - Cubre costos fijos<br>
+                        • Gastos sobre Ventas Repuestos: 9.05% vs 14% límite ✓ EFICIENTE - Excelente control costos<br>
+                        • Peso Específico Venta Repuestos: 32.62% vs 20% objetivo ✓ EXCELENTE - Gran contribución<br><br>
+                        
+                        <strong>⚠️ Indicadores MEJORABLES (1/6 = 17%):</strong><br>
+                        • Rotación Repuestos Varios: 2.69x vs >3x objetivo - Mejorable pero aceptable<br><br>
+                        
+                        <strong>🔴 Indicadores CRÍTICOS:</strong> NINGUNO<br><br>
+                        
+                        <strong>🎯 CONCLUSIÓN REPUESTOS:</strong> MEJOR DEPARTAMENTO DE TRIVIUM con 83% de KPIs cumpliendo objetivos. Excelente gestión con rotación adecuada (3.33x), peso específico superior (32.62% vs 20% guía) y eficiencia en gastos (9.05% vs 14% límite). El margen del departamento cubre el 62.52% de los gastos fijos totales.<br><br>
+                        
+                        <strong>MEJORES PRÁCTICAS A MANTENER:</strong><br>
+                        • Continuar política actual de gestión de inventario<br>
+                        • Mantener estructura de costos eficiente (9.05%)<br>
+                        • Potenciar venta cruzada con servicio<br>
+                        • Solo mejorar rotación repuestos varios (de 2.69x a 3x)<br>
+                        • Benchmark para otros departamentos
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 7: Departamento de Servicio (6 KPIs) -->
+            <div class="tab-pane fade" id="servicio" role="tabpanel">
+                <h2>⚙️ DEPARTAMENTO DE SERVICIO (6 KPIs)</h2>
+                
+                <div class="row">
+                    <!-- KPI 1: Coeficiente Absorción -->
+                    <div class="col-md-4 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="serv1" class="gauge"></canvas>
+                                <div class="gauge-value">22.08%</div>
+                            </div>
+                            <div class="gauge-label">COEFICIENTE ABSORCIÓN - SERVICIO</div>
+                            <div class="gauge-details">
+                                Guía: ≥40% | Media: 24.01%<br>
+                                <span class="badge-danger">⚠️ MUY BAJO</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 2: Gastos sobre Ventas -->
+                    <div class="col-md-4 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="serv2" class="gauge"></canvas>
+                                <div class="gauge-value">56.19%</div>
+                            </div>
+                            <div class="gauge-label">GASTOS SOBRE VENTAS - SERVICIO</div>
+                            <div class="gauge-details">
+                                Guía: 45% | Media: 44.60%<br>
+                                <span class="badge-danger">⚠️ ELEVADO</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 3: Peso Específico -->
+                    <div class="col-md-4 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="serv3" class="gauge"></canvas>
+                                <div class="gauge-value">6.92%</div>
+                            </div>
+                            <div class="gauge-label">PESO ESPECÍFICO VENTA SERVICIO</div>
+                            <div class="gauge-details">
+                                Guía: 10% | Media: 7.69%<br>
+                                <span class="badge-warning">BAJO</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 4: Repuestos Taller -->
+                    <div class="col-md-4 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="serv4" class="gauge"></canvas>
+                                <div class="gauge-value">36.37%</div>
+                            </div>
+                            <div class="gauge-label">REPUESTOS TALLER S/TOTAL REPUESTOS</div>
+                            <div class="gauge-details">
+                                Guía: ≥45% | Media: 45.86%<br>
+                                <span class="badge-warning">BAJO</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 5: Venta Cliente -->
+                    <div class="col-md-4 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="serv5" class="gauge"></canvas>
+                                <div class="gauge-value">73.79%</div>
+                            </div>
+                            <div class="gauge-label">VENTA SERVICIO CLIENTE S/TOTAL</div>
+                            <div class="gauge-details">
+                                Guía: ≥70% | Media: 68.29%<br>
+                                <span class="badge-success">✓ CUMPLE</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 6: Venta por Empleado -->
+                    <div class="col-md-4 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="serv6" class="gauge"></canvas>
+                                <div class="gauge-value">54K€</div>
+                            </div>
+                            <div class="gauge-label">VENTA SERVICIO POR EMPLEADO</div>
+                            <div class="gauge-details">
+                                Media: 64.9K€<br>
+                                <span class="badge-warning">BAJO</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Resumen específico Servicio -->
+                <div class="alert-custom alert-info mt-5">
+                    <span class="alert-icon">📊</span>
+                    <div>
+                        <strong>RESUMEN DEPARTAMENTO SERVICIO - 6 INDICADORES:</strong><br><br>
+                        
+                        <strong>✅ Indicadores que CUMPLEN (1/6 = 17%):</strong><br>
+                        • Venta Servicio Cliente s/Total: 73.79% vs ≥70% objetivo ✓ CUMPLE - Buena orientación al cliente externo<br><br>
+                        
+                        <strong>⚠️ Indicadores MEJORABLES (3/6 = 50%):</strong><br>
+                        • Peso Específico Venta Servicio: 6.92% vs 10% objetivo - BAJO - Poca contribución a ventas totales<br>
+                        • Repuestos Taller s/Total Repuestos: 36.37% vs ≥45% objetivo - BAJO - Poca venta cruzada<br>
+                        • Venta Servicio por Empleado: 54K€ vs 64.9K€ media - BAJO - Productividad deficiente<br><br>
+                        
+                        <strong>🔴 Indicadores CRÍTICOS (2/6 = 33%):</strong><br>
+                        • Coeficiente Absorción Servicio: 22.08% vs ≥40% objetivo (GAP: -17.92pp) 🔴 MUY BAJO<br>
+                        • Gastos sobre Ventas Servicio: 56.19% vs 45% objetivo (GAP: +11.19pp) 🔴 ELEVADO<br><br>
+                        
+                        <strong>🎯 CONCLUSIÓN SERVICIO:</strong> DEPARTAMENTO MÁS CRÍTICO con solo 17% de KPIs cumpliendo. El margen del servicio apenas cubre el 22% de los gastos fijos (objetivo 40%), mientras los gastos operativos consumen el 56% de las ventas (objetivo 45%). Productividad muy baja: 54K€/empleado vs 64.9K€ media.<br><br>
+                        
+                        <strong>PLAN DE REESTRUCTURACIÓN URGENTE:</strong><br>
+                        1. Reducir estructura de costos del 56% al 45% (ahorro ~700K€/año)<br>
+                        2. Mejorar productividad mecánicos: de 160% a 220% MO/Coste<br>
+                        3. Incrementar tarifa hora en 10% inmediato<br>
+                        4. Aumentar venta PowerGard (objetivo +50% contratos)<br>
+                        5. Mejorar venta cruzada repuestos: del 36% al 45%<br>
+                        6. Objetivo: Coeficiente absorción del 22% al 40% en 12 meses
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 8: Soluciones Integradas (5 KPIs) -->
+            <div class="tab-pane fade" id="soluciones" role="tabpanel">
+                <h2>🌐 SOLUCIONES INTEGRADAS (5 KPIs)</h2>
+                
+                <div class="row">
+                    <!-- KPI 1: Margen Bruto -->
+                    <div class="col-md-4 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="sol1" class="gauge"></canvas>
+                                <div class="gauge-value">100%</div>
+                            </div>
+                            <div class="gauge-label">% MARGEN BRUTO - SOLUCIONES INTEGRADAS</div>
+                            <div class="gauge-details">
+                                Media: 95.07%<br>
+                                <span class="badge-success">✓ EXCELENTE</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 2: Contribución Ventas -->
+                    <div class="col-md-4 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="sol2" class="gauge"></canvas>
+                                <div class="gauge-value">-0.27%</div>
+                            </div>
+                            <div class="gauge-label">CONTRIBUCIÓN A VENTAS TOTALES</div>
+                            <div class="gauge-details">
+                                Media: 0.22%<br>
+                                <span class="badge-danger">⚠️ NEGATIVO</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 3: Punto Equilibrio -->
+                    <div class="col-md-4 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="sol3" class="gauge"></canvas>
+                                <div class="gauge-value">366K€</div>
+                            </div>
+                            <div class="gauge-label">PUNTO DE EQUILIBRIO - SOLUCIONES</div>
+                            <div class="gauge-details">
+                                Media: 652K€<br>
+                                <span class="badge-success">✓ MEJOR</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 4: Gastos sobre Ventas -->
+                    <div class="col-md-4 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="sol4" class="gauge"></canvas>
+                                <div class="gauge-value">-81.42%</div>
+                            </div>
+                            <div class="gauge-label">GASTOS SOBRE VENTAS - SOLUCIONES</div>
+                            <div class="gauge-details">
+                                Media: 245.48%<br>
+                                <span class="badge-success">✓ MEJOR</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- KPI 5: Coeficiente Absorción -->
+                    <div class="col-md-4 mb-4">
+                        <div class="gauge-card">
+                            <div class="gauge-container">
+                                <canvas id="sol5" class="gauge"></canvas>
+                                <div class="gauge-value">-2.36%</div>
+                            </div>
+                            <div class="gauge-label">COEFICIENTE ABSORCIÓN - SOLUCIONES</div>
+                            <div class="gauge-details">
+                                Media: 1.87%<br>
+                                <span class="badge-danger">⚠️ NEGATIVO</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Resumen específico Soluciones Integradas -->
+                <div class="alert-custom alert-info mt-5">
+                    <span class="alert-icon">📊</span>
+                    <div>
+                        <strong>RESUMEN SOLUCIONES INTEGRADAS - 5 INDICADORES:</strong><br><br>
+                        
+                        <strong>✅ Indicadores POSITIVOS (3/5 = 60%):</strong><br>
+                        • Margen Bruto: 100% vs 95.07% media ✓ EXCELENTE<br>
+                        • Punto Equilibrio: 366K€ vs 652K€ media ✓ MEJOR<br>
+                        • Gastos sobre Ventas: -81.42% vs 245.48% media ✓<br><br>
+                        
+                        <strong>🔴 Indicadores NEGATIVOS (2/5 = 40%):</strong><br>
+                        • Contribución Ventas: -0.27% (negativo) vs 0.22% media 🔴<br>
+                        • Coeficiente Absorción: -2.36% (negativo) vs 1.87% media 🔴<br><br>
+                        
+                        <strong>🎯 CONCLUSIÓN SOLUCIONES INTEGRADAS:</strong> Departamento en fase inicial/desarrollo. Aunque tiene margen bruto del 100% y punto de equilibrio favorable (366K€), aún no genera contribución positiva a ventas (-0.27%). Normal en fase de arranque. Recomendación: Mantener inversión y desarrollar pipeline comercial para alcanzar masa crítica.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Gauge Drawing Script -->
+    <script>
+        // Función mejorada para dibujar gauge
+        function drawGauge(canvasId, value, min, max, guideValue, options = {}) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            canvas.width = 200;
+            canvas.height = 120;
+            
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height - 20;
+            const radius = 70;
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw background arc
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, Math.PI, 0, false);
+            ctx.lineWidth = 15;
+            ctx.strokeStyle = '#ecf0f1';
+            ctx.stroke();
+            
+            // Calculate value position
+            let numericValue = parseFloat(value);
+            if (isNaN(numericValue)) numericValue = 0;
+            
+            const percentage = Math.min(Math.max((numericValue - min) / (max - min), 0), 1);
+            const angle = Math.PI + (Math.PI * percentage);
+            
+            // Determine color
+            let color = '#f39c12'; // Default warning
+            if (options.invertedColors) {
+                // Para gastos, menor es mejor
+                if (numericValue <= guideValue) {
+                    color = '#27ae60'; // Verde si está por debajo del límite
+                } else if (numericValue > guideValue * 1.2) {
+                    color = '#e74c3c'; // Rojo si está muy por encima
+                }
+            } else {
+                // Normal, mayor es mejor
+                if (numericValue >= guideValue) {
+                    color = '#27ae60'; // Verde si cumple
+                } else if (numericValue < guideValue * 0.5) {
+                    color = '#e74c3c'; // Rojo si está muy por debajo
+                }
+            }
+            
+            // Draw value arc
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, Math.PI, angle, false);
+            ctx.lineWidth = 15;
+            ctx.strokeStyle = color;
+            ctx.stroke();
+            
+            // Draw guide marker
+            if (guideValue !== null && guideValue !== undefined) {
+                const guidePercentage = Math.min(Math.max((guideValue - min) / (max - min), 0), 1);
+                const guideAngle = Math.PI + (Math.PI * guidePercentage);
+                
+                ctx.save();
+                ctx.translate(centerX, centerY);
+                ctx.rotate(guideAngle);
+                ctx.beginPath();
+                ctx.moveTo(radius - 20, 0);
+                ctx.lineTo(radius + 10, 0);
+                ctx.lineWidth = 3;
+                ctx.strokeStyle = '#e74c3c';
+                ctx.stroke();
+                ctx.restore();
+            }
+            
+            // Draw scale markers
+            for (let i = 0; i <= 4; i++) {
+                const markerAngle = Math.PI + (Math.PI * i / 4);
+                ctx.save();
+                ctx.translate(centerX, centerY);
+                ctx.rotate(markerAngle);
+                ctx.beginPath();
+                ctx.moveTo(radius - 10, 0);
+                ctx.lineTo(radius - 5, 0);
+                ctx.lineWidth = 1;
+                ctx.strokeStyle = '#95a5a6';
+                ctx.stroke();
+                ctx.restore();
+            }
+            
+            // Draw min and max labels
+            ctx.font = '10px Arial';
+            ctx.fillStyle = '#7f8c8d';
+            ctx.textAlign = 'left';
+            ctx.fillText(min, centerX - radius - 15, centerY + 5);
+            ctx.textAlign = 'right';
+            ctx.fillText(max, centerX + radius + 15, centerY + 5);
+        }
+        
+        // Función para inicializar todos los gauges de una pestaña
+        function initializeTabGauges(tabId) {
+            switch(tabId) {
+                case 'cdm':
+                    // Indicadores Concesionario de Mañana
+                    drawGauge('cdm1', 30.71, 0, 50, 30);
+                    drawGauge('cdm2', 9.99, 0, 20, 15);
+                    drawGauge('cdm3', 5.02, 0, 10, 5);
+                    drawGauge('cdm4', 1.99, 0, 5, 3);
+                    drawGauge('cdm5', 1.85, 0, 8, 4);
+                    drawGauge('cdm6', 14.11, 0, 30, 20);
+                    drawGauge('cdm7', 82.24, 0, 120, 100);
+                    drawGauge('cdm8', 169.4, 0, 200, 100);
+                    drawGauge('cdm9', 85.65, 0, 100, 50);
+                    drawGauge('cdm10', 39.54, 0, 60, 30);
+                    drawGauge('cdm11', 10.71, 0, 20, 10, {invertedColors: true});
+                    break;
+                    
+                case 'rentabilidad':
+                    // Rentabilidad
+                    drawGauge('rent1', 27.50, 0, 50, 30);
+                    drawGauge('rent2', 13.18, 0, 20, 15);
+                    drawGauge('rent3', 7.62, 0, 15, 6);
+                    drawGauge('rent4', 19.43, 0, 40, 30);
+                    drawGauge('rent5', 35.87, 0, 70, 55);
+                    drawGauge('rent6', 4.09, -5, 10, 5);
+                    drawGauge('rent7', 8.17, 0, 15, 5);
+                    drawGauge('rent8', 4.86, 0, 10, 5);
+                    drawGauge('rent9', 6.36, 0, 15, 5, {invertedColors: true});
+                    drawGauge('rent10', 4.34, 0, 10, 5);
+                    drawGauge('rent11', 160.31, 0, 300, 220);
+                    drawGauge('rent12', 474, 0, 600, 480);
+                    break;
+                    
+                case 'estrategia':
+                    // Estrategia Financiera
+                    drawGauge('est1', 0.17, 0, 0.5, 0.12);
+                    drawGauge('est2', 92, 0, 150, 75, {invertedColors: true});
+                    drawGauge('est3', 88, 0, 100, 67);
+                    drawGauge('est4', 8.33, 0, 15, 3);
+                    break;
+                    
+                case 'liquidez':
+                    // Liquidez
+                    drawGauge('liq1', 0.35, 0, 1.5, 0.4);
+                    drawGauge('liq2', 1.34, 0, 3, 1.2);
+                    drawGauge('liq3', 44.17, 0, 90, 35, {invertedColors: true});
+                    drawGauge('liq4', 8.26, 0, 15, 10);
+                    drawGauge('liq5', 66.87, 0, 120, 60, {invertedColors: true});
+                    drawGauge('liq6', 21.1, 0, 40, 15);
+                    drawGauge('liq7', 6.71, 0, 12, 8);
+                    drawGauge('liq8', 30.7, 0, 50, 20);
+                    drawGauge('liq9', 2.80, 0, 8, 4);
+                    drawGauge('liq10', 130.44, 0, 240, 120, {invertedColors: true});
+                    drawGauge('liq11', 3.45, 0, 8, 4);
+                    break;
+                    
+                case 'productos':
+                    // Departamento Productos
+                    drawGauge('prod1', 2.65, 0, 8, 4);
+                    drawGauge('prod2', 2.94, 0, 8, 4);
+                    drawGauge('prod3', 2.36, 0, 8, 4);
+                    drawGauge('prod4', 1.24, 0, 8, 4);
+                    drawGauge('prod5', 6.01, 0, 15, 6, {invertedColors: true});
+                    drawGauge('prod6', 60.73, 0, 100, 70, {invertedColors: true});
+                    break;
+                    
+                case 'repuestos':
+                    // Departamento Repuestos
+                    drawGauge('rep1', 3.33, 0, 6, 3);
+                    drawGauge('rep2', 3.29, 0, 6, 3);
+                    drawGauge('rep3', 2.69, 0, 6, 3);
+                    drawGauge('rep4', 62.52, 0, 100, 60);
+                    drawGauge('rep5', 9.05, 0, 20, 14);
+                    drawGauge('rep6', 32.62, 0, 50, 20);
+                    break;
+                    
+                case 'servicio':
+                    // Departamento Servicio
+                    drawGauge('serv1', 22.08, 0, 60, 40);
+                    drawGauge('serv2', 56.19, 0, 100, 45, {invertedColors: true});
+                    drawGauge('serv3', 6.92, 0, 20, 10);
+                    drawGauge('serv4', 36.37, 0, 80, 45);
+                    drawGauge('serv5', 73.79, 0, 100, 70);
+                    drawGauge('serv6', 54, 0, 100, 65);
+                    break;
+                    
+                case 'soluciones':
+                    // Soluciones Integradas
+                    drawGauge('sol1', 100, 0, 100, 95);
+                    drawGauge('sol2', -0.27, -2, 2, 0.5);
+                    drawGauge('sol3', 366, 0, 1000, 650);
+                    drawGauge('sol4', -81.42, -200, 300, 100);
+                    drawGauge('sol5', -2.36, -5, 5, 2);
+                    break;
+            }
+        }
+        
+        // Initialize gauges on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            // Initialize first tab
+            initializeTabGauges('cdm');
+            
+            // Initialize gauges when tab changes
+            const tabButtons = document.querySelectorAll('[data-bs-toggle="tab"]');
+            tabButtons.forEach(button => {
+                button.addEventListener('shown.bs.tab', function(e) {
+                    const targetId = e.target.getAttribute('data-bs-target').replace('#', '');
+                    setTimeout(() => initializeTabGauges(targetId), 100);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

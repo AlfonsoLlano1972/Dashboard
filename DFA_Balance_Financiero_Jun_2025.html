@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análisis Balance Trivium vs Sector - Junio 2025</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1500px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #1e3c72;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-align: center;
+            border-bottom: 4px solid #2a5298;
+            padding-bottom: 15px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #607d8b;
+            font-size: 1.2em;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #2a5298;
+            font-size: 1.8em;
+            margin: 40px 0 25px;
+            padding: 15px;
+            background: linear-gradient(to right, #e3f2fd, transparent);
+            border-left: 5px solid #1e3c72;
+            border-radius: 5px;
+        }
+        h3 {
+            color: #34495e;
+            font-size: 1.4em;
+            margin: 25px 0 15px;
+            text-align: center;
+        }
+        
+        /* KPI Cards Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .kpi-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid #e0e6ed;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(to right, #1e3c72, #2a5298);
+        }
+        .kpi-card.good::before { background: linear-gradient(to right, #27ae60, #2ecc71); }
+        .kpi-card.warning::before { background: linear-gradient(to right, #f39c12, #f1c40f); }
+        .kpi-card.danger::before { background: linear-gradient(to right, #e74c3c, #c0392b); }
+        .kpi-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+        .kpi-title {
+            font-size: 0.9em;
+            color: #78909c;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .kpi-value {
+            font-size: 2.2em;
+            font-weight: bold;
+            color: #1e3c72;
+            margin-bottom: 10px;
+        }
+        .kpi-comparison {
+            font-size: 0.9em;
+            color: #607d8b;
+            line-height: 1.5;
+        }
+        .kpi-comparison strong {
+            color: #2a5298;
+        }
+        
+        /* Structure Charts */
+        .structure-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 30px;
+            margin: 30px 0;
+        }
+        .structure-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 1px solid #e0e6ed;
+        }
+        .structure-header {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #1e3c72;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e3f2fd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        /* Progress Bars */
+        .progress-item {
+            margin: 20px 0;
+        }
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #455a64;
+        }
+        .progress-bar {
+            height: 25px;
+            background: #eceff1;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+        .progress-fill {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            color: white;
+            font-size: 0.85em;
+            font-weight: 600;
+            transition: width 0.8s ease;
+        }
+        .fill-trivium {
+            background: linear-gradient(to right, #1e3c72, #2a5298);
+        }
+        .fill-sector {
+            background: linear-gradient(to right, #78909c, #607d8b);
+        }
+        .fill-good {
+            background: linear-gradient(to right, #27ae60, #2ecc71);
+        }
+        .fill-warning {
+            background: linear-gradient(to right, #f39c12, #f1c40f);
+        }
+        .fill-danger {
+            background: linear-gradient(to right, #e74c3c, #c0392b);
+        }
+        
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            background: white;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        thead {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+        }
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.95em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eceff1;
+            font-size: 0.95em;
+        }
+        tbody tr:hover {
+            background: #f8f9fa;
+        }
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+        
+        /* Pie Chart Simulation */
+        .pie-chart {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+        }
+        .pie-section {
+            text-align: center;
+            padding: 20px;
+        }
+        .pie-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #1e3c72;
+            margin-bottom: 10px;
+        }
+        .pie-label {
+            font-size: 1em;
+            color: #607d8b;
+            font-weight: 500;
+        }
+        
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .badge-success { background: #d4edda; color: #155724; }
+        .badge-warning { background: #fff3cd; color: #856404; }
+        .badge-danger { background: #f8d7da; color: #721c24; }
+        .badge-info { background: #d1ecf1; color: #0c5460; }
+        
+        /* Utilities */
+        .positive { color: #27ae60; font-weight: 600; }
+        .negative { color: #e74c3c; font-weight: 600; }
+        .neutral { color: #f39c12; font-weight: 600; }
+        
+        /* Alert Boxes */
+        .alert {
+            padding: 20px;
+            border-radius: 10px;
+            margin: 25px 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+        }
+        .alert-info {
+            background: #e3f2fd;
+            border-left: 5px solid #2196f3;
+            color: #0d47a1;
+        }
+        .alert-warning {
+            background: #fff8e1;
+            border-left: 5px solid #ffc107;
+            color: #f57c00;
+        }
+        .alert-danger {
+            background: #ffebee;
+            border-left: 5px solid #f44336;
+            color: #c62828;
+        }
+        .alert-success {
+            background: #e8f5e9;
+            border-left: 5px solid #4caf50;
+            color: #1b5e20;
+        }
+        .alert-icon {
+            font-size: 1.5em;
+        }
+        
+        /* Ratio Cards */
+        .ratio-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .ratio-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .ratio-card:hover {
+            transform: scale(1.05);
+        }
+        .ratio-name {
+            font-size: 0.9em;
+            color: #546e7a;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        .ratio-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #1e3c72;
+        }
+        .ratio-benchmark {
+            font-size: 0.85em;
+            color: #78909c;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💼 ANÁLISIS DEL BALANCE - BENCHMARKING FINANCIERO</h1>
+        <p class="subtitle">TRIVIUM Agronomía y Maquinaria S.L. | Balance a Junio 2025 vs Sector</p>
+
+        <h2>📊 INDICADORES CLAVE DE ESTRUCTURA FINANCIERA</h2>
+        <div class="kpi-grid">
+            <div class="kpi-card good">
+                <div class="kpi-title">Total Activos</div>
+                <div class="kpi-value">100.1M€</div>
+                <div class="kpi-comparison">
+                    <strong>Media Sector: 53.6M€</strong><br>
+                    Posición: +86.8% sobre media<br>
+                    Ranking: 1º del mercado
+                </div>
+            </div>
+            <div class="kpi-card warning">
+                <div class="kpi-title">Ratio Endeudamiento</div>
+                <div class="kpi-value">69.3%</div>
+                <div class="kpi-comparison">
+                    <strong>Media Sector: 66.3%</strong><br>
+                    Diferencia: +3.0pp<br>
+                    Evaluación: Apalancamiento alto
+                </div>
+            </div>
+            <div class="kpi-card good">
+                <div class="kpi-title">Fondo de Maniobra</div>
+                <div class="kpi-value">21.1M€</div>
+                <div class="kpi-comparison">
+                    <strong>Media Sector: 14.0M€</strong><br>
+                    Diferencia: +50.7%<br>
+                    Evaluación: Solvencia sólida
+                </div>
+            </div>
+            <div class="kpi-card warning">
+                <div class="kpi-title">Ratio Liquidez</div>
+                <div class="kpi-value">1.34</div>
+                <div class="kpi-comparison">
+                    <strong>Media Sector: 1.46</strong><br>
+                    Diferencia: -8.2%<br>
+                    Evaluación: Ligeramente ajustada
+                </div>
+            </div>
+            <div class="kpi-card danger">
+                <div class="kpi-title">Rotación Inventarios</div>
+                <div class="kpi-value">121 días</div>
+                <div class="kpi-comparison">
+                    <strong>Media Sector: 95 días</strong><br>
+                    Diferencia: +26 días<br>
+                    Evaluación: Lenta rotación
+                </div>
+            </div>
+            <div class="kpi-card good">
+                <div class="kpi-title">ROA</div>
+                <div class="kpi-value">7.5%</div>
+                <div class="kpi-comparison">
+                    <strong>Media Sector: 4.6%</strong><br>
+                    Diferencia: +2.9pp<br>
+                    Evaluación: Alta rentabilidad
+                </div>
+            </div>
+        </div>
+
+        <h2>🏗️ ESTRUCTURA DEL ACTIVO - COMPARATIVA</h2>
+        <div class="structure-grid">
+            <div class="structure-card">
+                <div class="structure-header">
+                    <span>TRIVIUM - Composición del Activo</span>
+                    <span style="color: #2a5298;">100.1M€</span>
+                </div>
+                <div class="progress-item">
+                    <div class="progress-label">
+                        <span>💰 Disponible y Exigible</span>
+                        <span>22.0M€ (22.0%)</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill fill-trivium" style="width: 22%;">22.0%</div>
+                    </div>
+                </div>
+                <div class="progress-item">
+                    <div class="progress-label">
+                        <span>📦 Inventarios</span>
+                        <span>60.5M€ (60.5%)</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill fill-warning" style="width: 60.5%;">60.5%</div>
+                    </div>
+                </div>
+                <div class="progress-item">
+                    <div class="progress-label">
+                        <span>🏭 Inmovilizado</span>
+                        <span>17.2M€ (17.2%)</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill fill-trivium" style="width: 17.2%;">17.2%</div>
+                    </div>
+                </div>
+                <div class="progress-item">
+                    <div class="progress-label">
+                        <span>📋 Otros Activos</span>
+                        <span>0.4M€ (0.3%)</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill fill-trivium" style="width: 3%;">0.3%</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="structure-card">
+                <div class="structure-header">
+                    <span>MEDIA SECTOR - Composición del Activo</span>
+                    <span style="color: #607d8b;">53.6M€</span>
+                </div>
+                <div class="progress-item">
+                    <div class="progress-label">
+                        <span>💰 Disponible y Exigible</span>
+                        <span>11.0M€ (20.6%)</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill fill-sector" style="width: 20.6%;">20.6%</div>
+                    </div>
+                </div>
+                <div class="progress-item">
+                    <div class="progress-label">
+                        <span>📦 Inventarios</span>
+                        <span>32.5M€ (60.6%)</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill fill-sector" style="width: 60.6%;">60.6%</div>
+                    </div>
+                </div>
+                <div class="progress-item">
+                    <div class="progress-label">
+                        <span>🏭 Inmovilizado</span>
+                        <span>9.7M€ (18.1%)</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill fill-sector" style="width: 18.1%;">18.1%</div>
+                    </div>
+                </div>
+                <div class="progress-item">
+                    <div class="progress-label">
+                        <span>📋 Otros Activos</span>
+                        <span>0.4M€ (0.7%)</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill fill-sector" style="width: 7%;">0.7%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h2>💳 ESTRUCTURA DEL PASIVO Y PATRIMONIO</h2>
+        <div class="pie-chart">
+            <div class="pie-section">
+                <div class="pie-value">61.5%</div>
+                <div class="pie-label">Pasivo Corriente</div>
+                <div style="margin-top: 10px;">
+                    <strong>Trivium:</strong> 61.5M€<br>
+                    <strong>Media:</strong> 55.7%
+                </div>
+            </div>
+            <div class="pie-section">
+                <div class="pie-value">7.8%</div>
+                <div class="pie-label">Pasivo No Corriente</div>
+                <div style="margin-top: 10px;">
+                    <strong>Trivium:</strong> 7.8M€<br>
+                    <strong>Media:</strong> 10.6%
+                </div>
+            </div>
+            <div class="pie-section">
+                <div class="pie-value">30.7%</div>
+                <div class="pie-label">Patrimonio Neto</div>
+                <div style="margin-top: 10px;">
+                    <strong>Trivium:</strong> 30.7M€<br>
+                    <strong>Media:</strong> 33.7%
+                </div>
+            </div>
+        </div>
+
+        <h2>📈 ANÁLISIS COMPARATIVO DE PARTIDAS CLAVE</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Partida</th>
+                    <th>Trivium</th>
+                    <th>% s/Activo</th>
+                    <th>Media Sector</th>
+                    <th>% s/Activo</th>
+                    <th>Diferencia</th>
+                    <th>Evaluación</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr style="background: #e8f5e9;">
+                    <td><strong>ACTIVO</strong></td>
+                    <td><strong>100.1M€</strong></td>
+                    <td><strong>100%</strong></td>
+                    <td><strong>53.6M€</strong></td>
+                    <td><strong>100%</strong></td>
+                    <td class="positive">+86.8%</td>
+                    <td><span class="badge badge-success">LÍDER</span></td>
+                </tr>
+                <tr>
+                    <td>Caja y Bancos</td>
+                    <td>0.3M€</td>
+                    <td>0.3%</td>
+                    <td>0.4M€</td>
+                    <td>0.7%</td>
+                    <td class="negative">-0.4pp</td>
+                    <td><span class="badge badge-warning">BAJO</span></td>
+                </tr>
+                <tr>
+                    <td>Cuentas a Cobrar</td>
+                    <td>21.7M€</td>
+                    <td>21.7%</td>
+                    <td>10.6M€</td>
+                    <td>19.9%</td>
+                    <td class="positive">+1.8pp</td>
+                    <td><span class="badge badge-info">NORMAL</span></td>
+                </tr>
+                <tr style="background: #fff8e1;">
+                    <td>Inventario Productos JD</td>
+                    <td>34.0M€</td>
+                    <td>34.0%</td>
+                    <td>16.2M€</td>
+                    <td>30.2%</td>
+                    <td class="negative">+3.8pp</td>
+                    <td><span class="badge badge-warning">ALTO</span></td>
+                </tr>
+                <tr style="background: #fff8e1;">
+                    <td>Inventario Repuestos</td>
+                    <td>13.2M€</td>
+                    <td>13.2%</td>
+                    <td>6.7M€</td>
+                    <td>12.4%</td>
+                    <td class="neutral">+0.8pp</td>
+                    <td><span class="badge badge-info">NORMAL</span></td>
+                </tr>
+                <tr>
+                    <td>Inventario Usados</td>
+                    <td>8.8M€</td>
+                    <td>8.8%</td>
+                    <td>4.3M€</td>
+                    <td>8.1%</td>
+                    <td class="neutral">+0.7pp</td>
+                    <td><span class="badge badge-info">NORMAL</span></td>
+                </tr>
+                <tr>
+                    <td>Flota Alquiler</td>
+                    <td>12.7M€</td>
+                    <td>12.7%</td>
+                    <td>7.1M€</td>
+                    <td>13.2%</td>
+                    <td class="positive">-0.5pp</td>
+                    <td><span class="badge badge-success">EFICIENTE</span></td>
+                </tr>
+                <tr style="background: #ffebee;">
+                    <td><strong>PASIVO</strong></td>
+                    <td><strong>69.3M€</strong></td>
+                    <td><strong>69.3%</strong></td>
+                    <td><strong>35.5M€</strong></td>
+                    <td><strong>66.3%</strong></td>
+                    <td class="negative">+3.0pp</td>
+                    <td><span class="badge badge-warning">ALTO</span></td>
+                </tr>
+                <tr>
+                    <td>Cuentas a Pagar JD</td>
+                    <td>32.2M€</td>
+                    <td>32.1%</td>
+                    <td>16.6M€</td>
+                    <td>31.0%</td>
+                    <td class="neutral">+1.1pp</td>
+                    <td><span class="badge badge-info">NORMAL</span></td>
+                </tr>
+                <tr style="background: #ffebee;">
+                    <td>Deuda Bancaria CP</td>
+                    <td>21.5M€</td>
+                    <td>21.5%</td>
+                    <td>7.1M€</td>
+                    <td>13.3%</td>
+                    <td class="negative">+8.2pp</td>
+                    <td><span class="badge badge-danger">MUY ALTO</span></td>
+                </tr>
+                <tr>
+                    <td>Deuda Bancaria LP</td>
+                    <td>6.6M€</td>
+                    <td>6.6%</td>
+                    <td>5.3M€</td>
+                    <td>9.8%</td>
+                    <td class="positive">-3.2pp</td>
+                    <td><span class="badge badge-success">BAJO</span></td>
+                </tr>
+                <tr style="background: #e8f5e9;">
+                    <td><strong>PATRIMONIO NETO</strong></td>
+                    <td><strong>30.7M€</strong></td>
+                    <td><strong>30.7%</strong></td>
+                    <td><strong>18.1M€</strong></td>
+                    <td><strong>33.7%</strong></td>
+                    <td class="negative">-3.0pp</td>
+                    <td><span class="badge badge-warning">AJUSTADO</span></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>📊 RATIOS FINANCIEROS CLAVE - BENCHMARKING</h2>
+        <div class="ratio-grid">
+            <div class="ratio-card">
+                <div class="ratio-name">LIQUIDEZ CORRIENTE</div>
+                <div class="ratio-value">1.34</div>
+                <div class="ratio-benchmark">Media: 1.46</div>
+            </div>
+            <div class="ratio-card">
+                <div class="ratio-name">PRUEBA ÁCIDA</div>
+                <div class="ratio-value">0.36</div>
+                <div class="ratio-benchmark">Media: 0.37</div>
+            </div>
+            <div class="ratio-card">
+                <div class="ratio-name">ENDEUDAMIENTO</div>
+                <div class="ratio-value" style="color: #e74c3c;">2.26x</div>
+                <div class="ratio-benchmark">Media: 1.96x</div>
+            </div>
+            <div class="ratio-card">
+                <div class="ratio-name">AUTONOMÍA FINANC.</div>
+                <div class="ratio-value">30.7%</div>
+                <div class="ratio-benchmark">Media: 33.7%</div>
+            </div>
+            <div class="ratio-card">
+                <div class="ratio-name">DÍAS COBRO</div>
+                <div class="ratio-value" style="color: #f39c12;">47 días</div>
+                <div class="ratio-benchmark">Media: 40 días</div>
+            </div>
+            <div class="ratio-card">
+                <div class="ratio-name">DÍAS PAGO</div>
+                <div class="ratio-value">85 días</div>
+                <div class="ratio-benchmark">Media: 75 días</div>
+            </div>
+            <div class="ratio-card">
+                <div class="ratio-name">ROA</div>
+                <div class="ratio-value" style="color: #27ae60;">7.5%</div>
+                <div class="ratio-benchmark">Media: 4.6%</div>
+            </div>
+            <div class="ratio-card">
+                <div class="ratio-name">ROE</div>
+                <div class="ratio-value" style="color: #27ae60;">24.5%</div>
+                <div class="ratio-benchmark">Media: 13.6%</div>
+            </div>
+        </div>
+
+        <h2>🎯 ANÁLISIS DE CAPITAL CIRCULANTE</h2>
+        <div class="structure-grid">
+            <div class="structure-card">
+                <div class="structure-header">
+                    <span>NECESIDADES OPERATIVAS DE FONDOS (NOF)</span>
+                    <span class="badge badge-warning">ELEVADAS</span>
+                </div>
+                <table style="margin: 0;">
+                    <tbody>
+                        <tr>
+                            <td>(+) Clientes</td>
+                            <td style="text-align: right;">21.7M€</td>
+                        </tr>
+                        <tr>
+                            <td>(+) Inventarios</td>
+                            <td style="text-align: right;">60.5M€</td>
+                        </tr>
+                        <tr>
+                            <td>(-) Proveedores</td>
+                            <td style="text-align: right;">-35.5M€</td>
+                        </tr>
+                        <tr style="background: #f5f5f5; font-weight: bold;">
+                            <td>= NOF Trivium</td>
+                            <td style="text-align: right; color: #e74c3c;">46.7M€</td>
+                        </tr>
+                        <tr>
+                            <td>NOF Media Sector</td>
+                            <td style="text-align: right;">29.1M€</td>
+                        </tr>
+                        <tr style="background: #ffebee;">
+                            <td>Exceso NOF</td>
+                            <td style="text-align: right; color: #e74c3c;">17.6M€</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="structure-card">
+                <div class="structure-header">
+                    <span>FONDO DE MANIOBRA</span>
+                    <span class="badge badge-success">POSITIVO</span>
+                </div>
+                <table style="margin: 0;">
+                    <tbody>
+                        <tr>
+                            <td>Activo Corriente</td>
+                            <td style="text-align: right;">82.6M€</td>
+                        </tr>
+                        <tr>
+                            <td>(-) Pasivo Corriente</td>
+                            <td style="text-align: right;">-61.5M€</td>
+                        </tr>
+                        <tr style="background: #e8f5e9; font-weight: bold;">
+                            <td>= FM Trivium</td>
+                            <td style="text-align: right; color: #27ae60;">21.1M€</td>
+                        </tr>
+                        <tr>
+                            <td>FM Media Sector</td>
+                            <td style="text-align: right;">14.0M€</td>
+                        </tr>
+                        <tr style="background: #e8f5e9;">
+                            <td>Superávit FM</td>
+                            <td style="text-align: right; color: #27ae60;">+7.1M€</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="alert alert-warning">
+            <span class="alert-icon">⚠️</span>
+            <div>
+                <strong>PRINCIPALES RIESGOS FINANCIEROS IDENTIFICADOS:</strong><br>
+                1. <strong>Alta dependencia de financiación bancaria CP:</strong> 21.5% vs 13.3% media<br>
+                2. <strong>Exceso de inventario:</strong> 60.5M€ con rotación 26 días más lenta que sector<br>
+                3. <strong>Periodo medio de cobro elevado:</strong> 47 días vs 40 días media<br>
+                4. <strong>Ratio de endeudamiento superior:</strong> 69.3% vs 66.3% media
+            </div>
+        </div>
+
+        <h2>📈 EVOLUCIÓN DE INDICADORES VS SECTOR</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Indicador</th>
+                    <th>Trivium Jun-25</th>
+                    <th>Media Sector</th>
+                    <th>GAP</th>
+                    <th>Impacto Financiero</th>
+                    <th>Prioridad</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Reducir Inventario</strong></td>
+                    <td>60.5M€</td>
+                    <td>32.5M€ (ajustado)</td>
+                    <td class="negative">+28.0M€</td>
+                    <td>Liberar 10M€ capital</td>
+                    <td><span class="badge badge-danger">CRÍTICA</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Mejorar Cobro</strong></td>
+                    <td>47 días</td>
+                    <td>40 días</td>
+                    <td class="negative">+7 días</td>
+                    <td>Liberar 3.3M€</td>
+                    <td><span class="badge badge-warning">ALTA</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Reducir Deuda CP</strong></td>
+                    <td>21.5M€</td>
+                    <td>7.1M€ (ajustado)</td>
+                    <td class="negative">+14.4M€</td>
+                    <td>Ahorro 0.5M€/año</td>
+                    <td><span class="badge badge-warning">ALTA</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Aumentar Patrimonio</strong></td>
+                    <td>30.7%</td>
+                    <td>33.7%</td>
+                    <td class="negative">-3.0pp</td>
+                    <td>Necesarios 3M€</td>
+                    <td><span class="badge badge-info">MEDIA</span></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>💡 RECOMENDACIONES ESTRATÉGICAS</h2>
+        <div class="alert alert-info">
+            <span class="alert-icon">📋</span>
+            <div>
+                <strong>PLAN DE OPTIMIZACIÓN DEL BALANCE:</strong><br>
+                <strong>1. Gestión de Inventarios (Inmediato):</strong><br>
+                • Implementar sistema Just-in-Time con John Deere<br>
+                • Liquidación agresiva de stock obsoleto (>180 días)<br>
+                • Objetivo: Reducir inventario en 10M€ en 6 meses<br><br>
+                
+                <strong>2. Gestión de Cobros (0-3 meses):</strong><br>
+                • Reducir plazo de cobro de 47 a 40 días<br>
+                • Implementar scoring crediticio automático<br>
+                • Descuentos por pronto pago (2% a 10 días)<br><br>
+                
+                <strong>3. Estructura Financiera (3-6 meses):</strong><br>
+                • Convertir 7M€ de deuda CP a LP<br>
+                • Negociar líneas de confirming con proveedores<br>
+                • Evaluar ampliación de capital de 3M€
+            </div>
+        </div>
+
+        <div class="alert alert-success">
+            <span class="alert-icon">✅</span>
+            <div>
+                <strong>FORTALEZAS DEL BALANCE:</strong><br>
+                • Liderazgo absoluto en tamaño: 100.1M€ vs 53.6M€ media<br>
+                • Fondo de maniobra positivo: 21.1M€ (+50% sobre media)<br>
+                • ROA superior: 7.5% vs 4.6% media sector<br>
+                • ROE excepcional: 24.5% vs 13.6% media
+            </div>
+        </div>
+
+        <div class="alert alert-danger">
+            <span class="alert-icon">🎯</span>
+            <div>
+                <strong>KPIs OBJETIVO PARA 2026:</strong><br>
+                • Inventario/Ventas: Del 35.7% al 30%<br>
+                • Días de cobro: De 47 a 40 días<br>
+                • Ratio endeudamiento: Del 69.3% al 65%<br>
+                • Deuda bancaria CP: De 21.5M€ a 15M€<br>
+                • ROA: Mantener >7%
+            </div>
+        </div>
+
+        <div style="margin-top: 40px; padding: 20px; background: #f8f9fa; border-radius: 10px; text-align: center;">
+            <p style="color: #607d8b; font-size: 0.9em;">
+                📅 Análisis del Balance a: Junio 2025<br>
+                💼 TRIVIUM Agronomía y Maquinaria S.L. | Concesionario John Deere #323258<br>
+                📊 Benchmark: Media del sector concesionarios John Deere España
+            </p>
+        </div>
+    </div>
+</body>
+</html>
